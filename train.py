@@ -23,11 +23,9 @@ import os
 import random as rn
 
 from keras import backend as k
-from keras import regularizers
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
-from keras.optimizers import SGD
 import numpy as np
 from skimage import io, transform
 import tensorflow as tf
@@ -45,7 +43,8 @@ def seed_randomness():
     np.random.seed(42)
     rn.seed(42)
     tf.set_random_seed(42)
-    session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+    session_conf = tf.ConfigProto(intra_op_parallelism_threads=1,
+                                  inter_op_parallelism_threads=1)
     sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
     k.set_session(sess)
 
@@ -73,10 +72,10 @@ def load_data_with_dev():
     # Create development set indices
     devidx = {-1}
     for i in range(int(len(train_x) / 10)):
-        r = -1
-        while r in devidx:
-            r = np.random.randint(len(train_x))
-        devidx.add(r)
+        ridx = -1
+        while ridx in devidx:
+            ridx = np.random.randint(len(train_x))
+        devidx.add(ridx)
     devidx.remove(-1)
 
     # Load in picture data into training and development sets
@@ -88,16 +87,16 @@ def load_data_with_dev():
 
     class_weight_temp = {0:  0., 1: 0.}
 
-    for i, x in enumerate(idx, 0):
-        img_name = root + 'train/' + train_x[x]
+    for i, xidx in enumerate(idx, 0):
+        img_name = root + 'train/' + train_x[xidx]
         image = transform.resize(io.imread(img_name), (300, 300))
         if i in devidx:
             tempdevx.append(image)
-            tempdevy.append(train_y[x])
+            tempdevy.append(train_y[xidx])
         else:
             tempx.append(image)
-            tempy.append(train_y[x])
-            class_weight_temp[train_y[x]] += 1.0
+            tempy.append(train_y[xidx])
+            class_weight_temp[train_y[xidx]] += 1.0
 
     class_weight = {0: class_weight_temp[1], 1: class_weight_temp[0]}
 
@@ -140,6 +139,11 @@ def construct_model():
 
 
 def main():
+    """
+    Trains the model, evaluates it on the development set,
+    and saves the model to a file named model.ker
+    """
+
     # Make sure we get reproducable results
     # Can be commented out if we want faster performance
     seed_randomness()
@@ -151,7 +155,8 @@ def main():
     model = construct_model()
 
     # Train the model with the train set
-    model.fit(trainx, trainy, epochs=15, batch_size=32, class_weight=class_weight)
+    model.fit(trainx, trainy, epochs=15, batch_size=32,
+              class_weight=class_weight)
 
     # Evaluate the model on the development set
     score = model.evaluate(devx, devy, batch_size=32)

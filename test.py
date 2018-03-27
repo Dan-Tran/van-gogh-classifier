@@ -19,12 +19,8 @@ testing set along with the baseline accuracies. This uses Keras with
 a TensorFlow backend to load, evaluate, and predict using the model.
 """
 
-from keras.models import Sequential, load_model
-from keras.layers import Dense, Dropout, Flatten
-from keras.layers import Conv2D, GlobalMaxPooling2D
-from keras.optimizers import SGD
+from keras.models import load_model
 import numpy as np
-from skimage import io, transform
 
 from utils import get_test_data, print_baseline
 
@@ -39,7 +35,7 @@ def evaluate_model(model, testx, testy):
     :param testy: The test image labels as a numpy array.
     """
 
-    score = model.evaluate(testx, testy, batch_size = 32)
+    score = model.evaluate(testx, testy, batch_size=32)
     print('Test Accuracy: ', score[1])
     print_baseline(testy)
 
@@ -55,8 +51,8 @@ def generate_predictions(model, testx, outfile):
 
     probabilities = model.predict(testx)
     predictions = []
-    for p in probabilities:
-        if p < 0.5:
+    for prob in probabilities:
+        if prob < 0.5:
             predictions.append(0)
         else:
             predictions.append(1)
@@ -65,6 +61,11 @@ def generate_predictions(model, testx, outfile):
 
 
 def main():
+    """
+    Loads the test data and the model, evaluate the
+    test accuracy, and generate predictions.
+    """
+
     # Load in test data and model
     testx, testy = get_test_data()
     model = load_model('model.ker')

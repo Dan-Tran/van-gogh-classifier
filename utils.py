@@ -35,16 +35,16 @@ def get_data(img_root, x_file, y_file):
               with the labels.
     """
 
-    xs = np.loadtxt(x_file, dtype=str)
-    ys = np.loadtxt(y_file)
+    x_s = np.loadtxt(x_file, dtype=str)
+    y_s = np.loadtxt(y_file)
 
     tempx = []
     tempy = []
-    for i, x in enumerate(xs, 0):
-        img_name = img_root + x
-        image = transform.resize(io.imread(img_name), (300,300))
+    for i, xname in enumerate(x_s, 0):
+        img_name = img_root + xname
+        image = transform.resize(io.imread(img_name), (300, 300))
         tempx.append(image)
-        tempy.append(ys[i])
+        tempy.append(y_s[i])
 
     return np.array(tempx), np.array(tempy)
 
